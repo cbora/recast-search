@@ -7,7 +7,7 @@ class Config(object):
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super(Config, cls).__new__(cls, *args, **kwargs)
     
     def __init__(self):
         self.__url = None
