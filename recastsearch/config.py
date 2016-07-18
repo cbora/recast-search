@@ -1,4 +1,4 @@
-
+import os
 
 class Config(object):
     """ Configuration object, holds information about Elasticsearch. """
@@ -7,24 +7,18 @@ class Config(object):
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super(Config, cls).__new__(cls, *args, **kwargs)
     
     def __init__(self):
-        self.__url = None
-        self.__index = None
-        self.__username = None
-        self.__password = None
-        self.__full_link = None
+        self.__host = os.environ.get('RECASTSEARCH_HOST', 'localhost')
+        self.__port = os.environ.get('RECASTSEARCH_PORT', 443)
+        self.__auth = os.environ.get('RECASTSEARCH_PORT', None)
+        self.__use_ssl = os.environ.get('RECASTSEARCH_USESSL', True)
+        self.__index = os.environ.get('RECASTSEARCH_INDEX', 'recast')
+        self.__analysis_doc_type = os.environ.get('RECASTSEARCH_ANALYSIS', 'analysis')
+        self.__request_doc_type = os.environ.get('RECASTSEARCH_REQUEST', 'request')
 
-        self.__host = None
-        self.__port = None
-
-        self.__auth = None
-
-        self.analysis_doc_type = None
-        self.request_doc_type = None
-
-        self.index_name = None
+        self.__url = 'http://{}{}:{}'.format(self.__auth, self.__host, self.__port)
 
     def initialize(self, config):
         pass
@@ -38,9 +32,6 @@ class Config(object):
     def get_request_doc_type(self):
         return self.request_doc_type
 
-    def search_url(self):
-        return self.__full_link
-
     def host(self):
         return self.__host
 
@@ -49,3 +40,6 @@ class Config(object):
 
     def auth(self):
         return self.__auth
+
+    def url(self):
+        return self.__url
