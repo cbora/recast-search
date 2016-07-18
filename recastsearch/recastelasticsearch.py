@@ -182,7 +182,7 @@ class RecastElasticSearch(object):
             tmp = data[i]
             data[i] = {}
             data[i]['_index'] = self.config.index()
-            data[i]['_type'] = self.config.request_doc_type()
+            data[i]['_type'] = self.config.anaysis_doc_type()
             data[i]['_source'] = tmp
 
         helpers.bulk(self.es, data)
