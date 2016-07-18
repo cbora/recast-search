@@ -11,7 +11,7 @@ setup(
     install_requires = [
         'pyyaml',
         'recast-api',
-        'elasticsearch'
+        'pyelasticsearch'
     ],
     entry_points = {
         'console_scripts': [
