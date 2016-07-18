@@ -40,7 +40,7 @@ class RecastElasticSearch(object):
 
     def pretty_response(self, response):
         """ Cleans response, removes unrelevant info. """
-        if response.has_key['hits']:            
+        if response.has_key('hits'):
             if response['hits'].has_key('hits'):
                 return response['hits']['hits']
 
@@ -53,29 +53,31 @@ class RecastElasticSearch(object):
         """
         if not doc_type:
             raise Exception('No doc_type provided!')
-        
-        return not bool(self.analyses)
+        if doc_type == self.config.analysis_doc_type():
+            return not bool(self.all_analyses())
+        if doc_type == self.config.request_doc_type():
+            return not bool(self.all_requests())
 
     def all_analyses(self):
         """ returns all analyses. """
         response = self.es.search(index=self.config.index(),
                                   doc_type=self.config.analysis_doc_type(),
                                   body={"query": {"match_all": {}}})
-        return pretty_response(response)
+        return self.pretty_response(response)
 
     def all_requests(self):
         """ returns all requests. """
         response = self.es.search(index=self.config.index(),
                                   doc_type=self.config.request_doc_type(),
                                   body={"query": {"match_all": {}}})
-        return pretty_response(response)
+        return self.pretty_response(response)
 
     def advanced_search(self, doc_type, body):
         """ Perform advanced search, user provides search body. """
         response = self.es.search(index=self.config.index(),
                                   doc_type=doc_type,
                                   body=body)
-        return pretty_response(response)
+        return self.pretty_response(response)
                                                  
     def simple_search(self, query, doc_type):
         """ simple search. 
@@ -91,7 +93,7 @@ class RecastElasticSearch(object):
         response = self.es.search(index=self.config.index(),
                                   doc_type=doc_type,
                                   body=body)
-        return pretty_response(response)
+        return self.pretty_response(response)
                                       
     def search_analysis(self, query):
         """ Search for analysis.
@@ -107,7 +109,7 @@ class RecastElasticSearch(object):
                                   doc_type=self.config.analysis_doc_type(),
                                   body = body)
 
-        return pretty_response(response)
+        return self.pretty_response(response)
 
     def search_request(self, query):
         """ Search for requests.
@@ -119,7 +121,7 @@ class RecastElasticSearch(object):
         response = self.es.search(index=self.config.index(),
                                   doc_type=self.config.request_doc_type(),
                                   body=body)
-        return pretty_response(response)
+        return self.pretty_response(response)
 
     def add_analysis(self, content):
         """ Adds single analysis content to ES. 
