@@ -1,6 +1,6 @@
-from elasticsearch import Elasticsearch
-#from pyelasticsearch.exceptions import IndexAlreadyExistsError
+from elasticsearch import Elasticsearch, helpers
 from config import Config
+import copy
 
 class RecastElasticSearch(object):
     """ High level elasticsearch API for Recast. """
@@ -23,6 +23,18 @@ class RecastElasticSearch(object):
         """ (careful) deletes index and everything contained. """
         self.es.indices.delete(index=self.config.index(), ignore=[400, 404])
 
+    def delete_requests(self):
+        """ deletes all requests. """
+        self.es.delete_by_query(index=self.config.index(),
+                                doc_type=self.config.request_doc_type(),
+                                body={"query": {"match_all": {}}})
+
+    def delete_analyses(self):
+        """ deletes all analyses. """
+        self.es.delete_by_query(index=self.config.index(),
+                                doc_type=self.config.analysis_doc_type(),
+                                body={"query": {"match_all": {}}})
+        
     def query_builder(self, query):
         """ builds query body for search. """
         body = {
@@ -123,14 +135,68 @@ class RecastElasticSearch(object):
                                   body=body)
         return self.pretty_response(response)
 
+    def clean_api_data(self, data):
+        """ function to remove unneccessary field given from response of API. """
+        #data = json.loads(data)
+        if type(data) is list:
+            for d in data:
+                try:
+                    del d['_updated']
+                    del d['_created']
+                    del d['_links']
+                    del d['_id']
+                except Exception, e:
+                    pass
+            return data
+
+        try:
+            del data['_updated']
+            del data['_created']
+            del data['_links']
+            del data['_id']
+        except Exception, e:
+            pass
+        return data
+
     def add_analysis(self, content):
         """ Adds single analysis content to ES. 
 
         """
-        self.es.index(self.config.index(), self.config.analysis_doc_type(), content)
+        data = self.clean_api_data(content)
+        self.es.index(self.config.index(), self.config.analysis_doc_type(), data)
 
     def add_request(self, content):
         """ Adds single request content to ES.
 
         """
-        self.es.index(self.config.index(), self.config.request_doc_type(), content)
+        data = copy.copy(content)
+        self.clean_api_content(data)
+        self.es.index(self.config.index(), self.config.request_doc_type(), data)
+
+    def bulk_analyses(self, contents):
+        """ Adds multiple analyses. """
+        data = copy.copy(contents)
+        self.clean_api_data(data)
+
+        for i in range(len(data)):
+            tmp = data[i]
+            data[i] = {}
+            data[i]['_index'] = self.config.index()
+            data[i]['_type'] = self.config.request_doc_type()
+            data[i]['_source'] = tmp
+
+        helpers.bulk(self.es, data)
+
+    def bulk_requests(self, contents):
+        """ Adds multiple requests. """
+        data = copy.copy(contents)
+        self.clean_api_data(data)
+
+        for i in range(len(data)):
+            tmp = data[i]
+            data[i] = {}
+            data[i]['_index'] = self.config.index()
+            data[i]['_type'] = self.config.request_doc_type()
+            data[i]['_source'] = tmp
+
+        helpers.bulk(self.es, data)
