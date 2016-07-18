@@ -28,8 +28,13 @@ class SearchService(object):
 
     def sync_analysis(self):
         """TO DO"""
-        response = requests.get(self.config.search_url())
-
+        response = requests.get(self.config.host())
+        
+        # if es is empty, do a bulk insert
+        if recast_search.isEmpty(doc_type=self.config.analysis_doc_type()):
+            recast_search.es.bulk(response, doc_type=self.config.analysis_doc_type(), index=self.config.index())
+            return
+        
         if response.ok:
             api_response = recastapi.analysis.get.query() # sort alphabetically
 
@@ -42,8 +47,12 @@ class SearchService(object):
         """ TO-DO
 
         """
-        response = requests.get(self.config.search_url())
-
+        response = requests.get(self.config.host())
+        
+        if recast_search.isEmpty(doc_type=self.config.analysis_doc_type()):
+            recast_search.es.bulk(response, doc_type=self.config.request_doc_type(), index=self.config.index())
+            return
+        
         if response.ok:
             api_response = recatapi.request.get.query() # sort alphabetically
 
