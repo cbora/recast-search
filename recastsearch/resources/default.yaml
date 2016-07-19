@@ -1,0 +1,3 @@
+HOST: 'localhost'
+AUTH: 'username:password'
+INDEX: 'recast'
