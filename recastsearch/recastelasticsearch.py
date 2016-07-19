@@ -34,6 +34,14 @@ class RecastElasticSearch(object):
         self.es.delete_by_query(index=self.config.index(),
                                 doc_type=self.config.analysis_doc_type(),
                                 body={"query": {"match_all": {}}})
+
+    def delete_record(self, doc_type, query):
+        """ deletes by query. """
+        query = self.query_builder(query)
+        print query
+        self.es.delete_by_query(index=self.config.index(),
+                                doc_type=self.config.analysis_doc_type(),
+                                body=query)
         
     def query_builder(self, query):
         """ builds query body for search. """
@@ -54,7 +62,7 @@ class RecastElasticSearch(object):
         """ Cleans response, removes unrelevant info. """
         if response.has_key('hits'):
             if response['hits'].has_key('hits'):
-                return response['hits']['hits']
+                    return response['hits']['hits']
 
         raise Exception('Unconventional response!')
 
