@@ -12,6 +12,8 @@ class SyncService(object):
     def __init__(self, config):
         self.config = config
         self.recast_search = RecastElasticSearch(config)
+        logging.basicConfig(level=logging.DEBUG,
+                            format='[%(levelname)s] %(message)s')
         
     def sync(self):
         """ Worker funtion to detect changes in the ES.
@@ -20,8 +22,9 @@ class SyncService(object):
         """
         t_analysis = threading.Thread(name='analysis', target=self.sync_analysis)
         t_request = threading.Thread(name='request', target=self.sync_request)
-
+        logging.info('Start Analysis sync')
         t_analysis.start()
+        logging.info('Start Request sync')
         t_request.request()
 
         t_analysis.join()
