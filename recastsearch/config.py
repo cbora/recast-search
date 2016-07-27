@@ -6,23 +6,20 @@ class Config(object):
     
     _instance = None
     def __new__(cls, *args, **kwargs):
+        """ this object is a singleton. """
         if not cls._instance:
             cls._instance = super(Config, cls).__new__(cls, *args, **kwargs)
         return cls._instance
     
-    def __init__(self, config_file=None):
-        if config_file:
+    def __init__(self, config_file=None, **kwargs):
+        """ Kwargs overwirte config_file, and config_file overwrite env variables. """
+        if config_file:            
             f = open(config_file)
             config = yaml.load(f)
             f.close()
-
-            os.environ['RECASTSEARCH_HOST'] = config.get('HOST', '')
-            os.environ['RECASTSEARCH_PORT'] = config.get('PORT', '443')
-            os.environ['RECASTSEARCH_AUTH'] = config.get('AUTH', '')
-            os.environ['RECASTSEARCH_USE_SSL'] = config.get('USE_SSL', 'True')
-            os.environ['RECASTSEARCH_INDEX'] = config.get('INDEX', 'recast')
-            os.environ['RECASTSEARCH_ANALYSIS'] = config.get('ANALYSIS', 'analysis')
-            os.environ['RECASTSEARCH_REQUEST'] = config.get('REQUEST', 'request')
+            self.initialize(config)
+        if kwargs:
+            self.initialize(kwargs)
             
         self.__host = os.environ.get('RECASTSEARCH_HOST', 'localhost')
         self.__port = os.environ.get('RECASTSEARCH_PORT', 443)
@@ -31,9 +28,9 @@ class Config(object):
         self.__index = os.environ.get('RECASTSEARCH_INDEX', 'recast')
         self.__analysis_doc_type = os.environ.get('RECASTSEARCH_ANALYSIS', 'analysis')
         self.__request_doc_type = os.environ.get('RECASTSEARCH_REQUEST', 'request')
+        self.__vertify_certs = os.environ.get('RECASTSEARCH_VERIFY_CERTS', 'True')
 
         self.__url = 'https://{}@{}'.format(self.__auth, self.__host)
-
         response = os.system("ping -c 1 " + self.__url)
         if response:
             print self.__url, ' is up!'
@@ -41,7 +38,22 @@ class Config(object):
             print self.__url, ' is down!'
 
     def initialize(self, config):
-        pass
+        os.environ['RECASTSEARCH_HOST'] = config.get('HOST',
+                                                     os.environ['RECASTSEARCH_HOST'])        
+        os.environ['RECASTSEARCH_PORT'] = config.get('PORT',
+                                                     os.environ['RECASTSEARCH_PORT'])
+        os.environ['RECASTSEARCH_AUTH'] = config.get('AUTH',
+                                                     os.environ['RECASTSEARCH_AUTH'])
+        os.environ['RECASTSEARCH_USE_SSL'] = config.get('USE_SSL',
+                                                        os.environ['RECASTSEARCH_USE_SSL'])
+        os.environ['RECASTSEARCH_INDEX'] = config.get('INDEX',
+                                                      os.environ['RECASTSEARCH_INDEX'])
+        os.environ['RECASTSEARCH_ANALYSIS'] = config.get('ANALYSIS',
+                                                         os.environ['ANALYSIS'])
+        os.environ['RECASTSEARCH_REQUEST'] = config.get('REQUEST',
+                                                        os.environ['REQUEST'])
+        os.environ['RECASTSEARCH_VERIFY_CERTS'] = config.get('VERIFY_CERTS',
+                                                             os.environ['RECASTSEARCH_VERIFY_CERTS'])
 
     def index(self):
         return self.__index
@@ -66,6 +78,12 @@ class Config(object):
 
     def use_ssl(self):
         if self.__use_ssl == 'True':
+            return True
+        else:
+            return False
+
+    def verify_certs(self):
+        if self.__verify_certs == 'True':
             return True
         else:
             return False

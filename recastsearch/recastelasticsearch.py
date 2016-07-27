@@ -13,7 +13,7 @@ class RecastElasticSearch(object):
                                   'port': self.config.port(),
                                   'use_ssl': self.config.use_ssl(),
                                   'http_auth': self.config.auth(),
-                                  'verify_certs': True,
+                                  'verify_certs': self.config.verify_certs(),
                                   'ca_certs':certifi.where()
                                   }])
 
