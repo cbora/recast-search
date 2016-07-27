@@ -11,7 +11,6 @@ setup(
     install_requires = [
         'pyyaml',
         'recast-api',
-        'pyelasticsearch',
         'elasticsearch'
     ],
     entry_points = {

@@ -28,7 +28,7 @@ class Config(object):
         self.__index = os.environ.get('RECASTSEARCH_INDEX', 'recast')
         self.__analysis_doc_type = os.environ.get('RECASTSEARCH_ANALYSIS', 'analysis')
         self.__request_doc_type = os.environ.get('RECASTSEARCH_REQUEST', 'request')
-        self.__vertify_certs = os.environ.get('RECASTSEARCH_VERIFY_CERTS', 'True')
+        self.__verify_certs = os.environ.get('RECASTSEARCH_VERIFY_CERTS', 'True')
 
         self.__url = 'https://{}@{}'.format(self.__auth, self.__host)
         response = os.system("ping -c 1 " + self.__url)
@@ -38,22 +38,22 @@ class Config(object):
             print self.__url, ' is down!'
 
     def initialize(self, config):
-        os.environ['RECASTSEARCH_HOST'] = config.get('HOST',
-                                                     os.environ['RECASTSEARCH_HOST'])        
-        os.environ['RECASTSEARCH_PORT'] = config.get('PORT',
-                                                     os.environ['RECASTSEARCH_PORT'])
-        os.environ['RECASTSEARCH_AUTH'] = config.get('AUTH',
-                                                     os.environ['RECASTSEARCH_AUTH'])
-        os.environ['RECASTSEARCH_USE_SSL'] = config.get('USE_SSL',
-                                                        os.environ['RECASTSEARCH_USE_SSL'])
-        os.environ['RECASTSEARCH_INDEX'] = config.get('INDEX',
-                                                      os.environ['RECASTSEARCH_INDEX'])
-        os.environ['RECASTSEARCH_ANALYSIS'] = config.get('ANALYSIS',
-                                                         os.environ['ANALYSIS'])
-        os.environ['RECASTSEARCH_REQUEST'] = config.get('REQUEST',
-                                                        os.environ['REQUEST'])
-        os.environ['RECASTSEARCH_VERIFY_CERTS'] = config.get('VERIFY_CERTS',
-                                                             os.environ['RECASTSEARCH_VERIFY_CERTS'])
+        if config.has_key('HOST'):
+            os.environ['RECASTSEARCH_HOST'] = config.get('HOST')
+        if config.has_key('PORT'):
+            os.environ['RECASTSEARCH_PORT'] = config.get('PORT')
+        if config.has_key('AUTH'):
+            os.environ['RECASTSEARCH_AUTH'] = config.get('AUTH')
+        if config.has_key('USE_SSL'):
+            os.environ['RECASTSEARCH_USE_SSL'] = config.get('USE_SSL')
+        if config.has_key('INDEX'):
+            os.environ['RECASTSEARCH_INDEX'] = config.get('INDEX')
+        if config.has_key('ANALYSIS'):
+            os.environ['RECASTSEARCH_ANALYSIS'] = config.get('ANALYSIS')
+        if config.has_key('REQUESTS'):
+            os.environ['RECASTSEARCH_REQUEST'] = config.get('REQUEST')
+        if config.has_key('VERIFY_CERTS'):
+            os.environ['RECASTSEARCH_VERIFY_CERTS'] = config.get('VERIFY_CERTS')
 
     def index(self):
         return self.__index
