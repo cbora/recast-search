@@ -1,6 +1,7 @@
 from elasticsearch import Elasticsearch, helpers
 from config import Config
 import copy
+import certifi
 
 class RecastElasticSearch(object):
     """ High level elasticsearch API for Recast. """
@@ -11,7 +12,9 @@ class RecastElasticSearch(object):
         self.es = Elasticsearch([{'host': self.config.host(),
                                   'port': self.config.port(),
                                   'use_ssl': self.config.use_ssl(),
-                                  'http_auth': self.config.auth()
+                                  'http_auth': self.config.auth(),
+                                  'verify_certs': True,
+                                  'ca_certs':certifi.where()
                                   }])
 
     def create(self):
